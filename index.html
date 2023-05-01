@@ -1,0 +1,42 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="CSS/main.css">
+    <script type="text/javascript" src="JS/index.js"></script>
+</head>
+<body onload="setupGame();">
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+</style>
+<div id="everething">
+
+    <button type="button" id="startButton" onclick="newGame()">reload</button>
+    <p id="score" onload="suus()">score: </p>
+    <p id="maxscore">best:</p>
+    <div id="game">
+
+
+        <div id="ship-container">
+            <img id="spaceship"
+                 src="images/spaceship.png">
+        </div>
+
+        <div id="line">
+        </div>
+
+        <div id="outside-spaceship">
+        </div>
+
+
+    </div>
+
+
+</body>
+</html>
+
+<!--onload="changeScore()"-->
