@@ -11,50 +11,25 @@ const killEnemy = new Audio('./audio/killEnemy.mp4');
 const schoolInToronto = new Audio('./audio/schoolInToronto.mp4');
 let currentScore = 0;
 let maxScore = 0;
-let cooldown = 1;
+let coolDown = 1;
 let waves = 1000;
 let numberWaves = 0;
-
-
-function changeScore() {
-    // document.getElementById("score")["innerHTML"] = "olala";
-    // document.getElementById("score").textContent = currentScore;
-    document.getElementById("outside-spaceship").innerHTML = "";
-}
-
+let lastShotTime = 0;
 
 function suus() {
 
 }
 
-
-let lastShotTime = 0;
-
-async function shoot() {
-    // Весь код функции shoot() здесь
-
-}
-
-
 async function newGame() {
     if (GAME_STATE === GAME_STATE_OVER) {
+        document.getElementById("score").innerHTML = "score: " + currentScore;
         document.getElementById("outside-spaceship").innerHTML = "";
         GAME_STATE = GAME_STATE_ACTIVE;
         document.getElementById("startButton").style.visibility = "hidden";
         numberWaves = 0;
         waves = 1000;
-        // setupGame();
 
-        for (let i = 0; i < 10; i++) {
-            for (let times = 0; GAME_STATE === GAME_STATE_ACTIVE && times < 4; times++) {
-                let enemy = createEnemy(200 * times + 60);
-                enemyz.push(enemy);
-                enemyzCondition.set(enemy, ENEMY_ALIVE);
-                moveEnemyDown(enemy);
-                await new Promise(r => setTimeout(r, waves));
-            }
-        }
-        // location.reload();
+        await createAllWaves();
     }
 }
 
@@ -74,13 +49,11 @@ async function shoot() {
     document.getElementById("outside-spaceship").appendChild(bullet);
     let bulletLeft = document.getElementById('spaceship').getBoundingClientRect().left;
     bullet.style.left = bulletLeft + "px";
-    // return bullet;
     let bulletTop = document.getElementById('spaceship').getBoundingClientRect().top;
     for (let times = 200; times > 0; times = times - 1) {
         await new Promise(r => setTimeout(r, 20));
         bulletTop = bulletTop - 5;
         bullet.style.top = bulletTop + 'px';
-        //todo
 
         for (let times = 0; GAME_STATE === GAME_STATE_ACTIVE && times < enemyz.length; times++) {
             let enemyTop = enemyz[times].getBoundingClientRect().top;
@@ -136,10 +109,9 @@ function moveShip() {
     }
 
     const spaceshipObj = document.getElementById('spaceship');
-    if (shipLeft == 0) {
+    if (shipLeft === 0) {
         shipLeft = spaceshipObj.getBoundingClientRect().left;
     }
-    // alert(event.code);
     if (isKeyPressed.get("ArrowLeft")) {
 
         shipLeft = shipLeft - 10;
@@ -153,15 +125,13 @@ function moveShip() {
         spaceshipObj.style.left = shipLeft + 'px';
 
     }
-    if (isKeyPressed.get("Space") && cooldown === 1) {
-        cooldown = 0;
+    if (isKeyPressed.get("Space") && coolDown === 1) {
+        coolDown = 0;
         shoot();
         schoolInToronto.play();
-        setTimeout(cooldown = 1, 2000)
+        setTimeout(coolDown = 1, 2000)
 
     }
-
-    // todo починить
     if (shipLeft <= 617) {
         shipLeft = shipLeft + 10;
     }
@@ -177,6 +147,7 @@ async function moveEnemyDown(enemy) {
     let enemyTop = enemy.getBoundingClientRect().top;
     for (let times = 400; GAME_STATE === GAME_STATE_ACTIVE && times > 0; times = times - 1) {
         await new Promise(r => setTimeout(r, 20));
+
         enemyTop = enemyTop + 2;
         enemy.style.top = enemyTop + 'px';
 
@@ -189,11 +160,10 @@ async function moveEnemyDown(enemy) {
         if (enemyTop >= 680 && GAME_STATE === GAME_STATE_ACTIVE) {
             GAME_STATE = GAME_STATE_OVER;
             currentScore = 0;
-            // document.getElementById("score").innerHTML = "score: 0";
-            await endBoom.play();
+            // await endBoom.play();
             let boom = document.createElement("img");
             boom.src = "https://img.gazeta.ru/files3/716/15297716/RDS-6s_ognennoe_oblako-pic_32ratio_900x600-900x600-59269.jpg";
-            document.getElementById("outside-spaceship").appendChild(boom);
+            // document.getElementById("outside-spaceship").appendChild(boom);
             boom.style.width = 100 + "%";
             boom.style.height = 100 + "%";
             boom.style.zIndex = "10000";
@@ -223,23 +193,37 @@ async function addEnemy(times) {
     await new Promise(r => setTimeout(r, waves));
 }
 
+function isGameOver() {
+    return GAME_STATE === GAME_STATE_OVER;
+}
+
 async function createWaves() {
     for (let i = 0; GAME_STATE === GAME_STATE_ACTIVE && i < 10; i++) {
         for (let times = 0; GAME_STATE === GAME_STATE_ACTIVE && times < 4; times++) {
             await addEnemy(times);
+            if (isGameOver()) {
+                return;
+            }
         }
         for (let timez = 3; GAME_STATE === GAME_STATE_ACTIVE && timez >= 0; timez--) {
             await addEnemy(timez);
+            if (GAME_STATE === GAME_STATE_OVER) {
+                return;
+            }
         }
     }
 }
 
 async function createDoubleWaves() {
-    let promise1 = createWaves();
-    await new Promise(r => setTimeout(r, 1000));
-    let promise2 = createWaves();
-
-    return Promise.all([promise1, promise2]);
+    if (GAME_STATE === GAME_STATE_ACTIVE) {
+        if (GAME_STATE === GAME_STATE_OVER) {
+            return;
+        }
+        let promise1 = createWaves();
+        await new Promise(r => setTimeout(r, 1000));
+        let promise2 = createWaves();
+        return Promise.all([promise1, promise2]);
+    }
 }
 
 
@@ -249,56 +233,34 @@ function getRandomInt(max) {
 
 
 async function createRandomWaves(howMany) {
-        for (let times = 1; GAME_STATE === GAME_STATE_ACTIVE && times <= howMany; times++) {
-            await addEnemy(getRandomInt(4));
+    for (let times = 1; GAME_STATE === GAME_STATE_ACTIVE && times <= howMany; times++) {
+        if (GAME_STATE === GAME_STATE_OVER) {
+            return;
         }
+        await addEnemy(getRandomInt(4));
+    }
+}
+
+async function createAllWaves() {
+    if (GAME_STATE === GAME_STATE_ACTIVE) {
+        if (GAME_STATE === GAME_STATE_OVER) {
+            return;
+        }
+        await createWaves();
+        await createRandomWaves(10);
+        await createDoubleWaves();
+        createDoubleWaves();
+        await createRandomWaves(1000000);
+
+    }
 }
 
 async function setupGame() {
     setInterval(moveShip, 30);
-
     currentScore = 0;
     document.getElementById("score").textContent = "score: " + currentScore;
-
-    await createWaves();
-    await createRandomWaves(10);
-    await createDoubleWaves();
-    createDoubleWaves();
-    await createRandomWaves(1000000);
+    await createAllWaves();
 }
-
-
-// Set the date we're counting down to
-// var countDownDate = new Date("Jan 5, 2024 15:37:25").getTime();
-
-// Update the count down every 1 second
-// var x = setInterval(function() {
-
-// Get today's date and time
-// var now = new Date().getTime();
-
-// Find the distance between now and the count down date
-// var distance = countDownDate - now;
-
-// // Time calculations for days, hours, minutes and seconds
-// var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-// var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-// var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-// var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-// Display the result in the element with id="demo"
-
-// If the count down is finished, write some text
-//     if (distance < 0) {
-//         clearInterval(x);
-//         document.getElementById("demo").innerHTML = "EXPIRED";
-//     }
-// }, 1000);
-
-
-
-
-
-
 
 
 
