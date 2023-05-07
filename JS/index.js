@@ -22,7 +22,7 @@ let enemyNum = 1;
 
 
 function getBattlefield(){
-    return document.getElementById("outside-spaceship")
+    return  document.getElementById("outside-spaceship")
 }
 
 async function newGame() {
