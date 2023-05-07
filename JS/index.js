@@ -19,9 +19,8 @@ let runNum = 1;
 let enemyNum = 1;
 
 
-
-function getBattlefield(){
-    return  document.getElementById("outside-spaceship")
+function getBattlefield() {
+    return document.getElementById("outside-spaceship")
 }
 
 async function startNewGame() {
@@ -170,7 +169,7 @@ async function gameOver() {
 async function moveEnemyDown(enemy) {
     let enemyTop = enemy.getBoundingClientRect().top;
     for (let times = 400; times > 0; times = times - 1) {
-        if(isGameOver()) return;
+        if (isGameOver()) return;
 
         await new Promise(r => setTimeout(r, 20));
 
@@ -222,7 +221,7 @@ async function createWaves() {
             moveEnemyDown(enemy);
             await new Promise(r => setTimeout(r, waves));
         }
-        for (let timez = 3;timez >= 0; timez--) {
+        for (let timez = 3; timez >= 0; timez--) {
             if (isGameOver()) {
                 return;
             }
@@ -234,13 +233,13 @@ async function createWaves() {
 }
 
 async function createDoubleWaves() {
-        if (isGameOver()) {
-            return;
-        }
-        let promise1 = createWaves();
-        await new Promise(r => setTimeout(r, 1000));
-        let promise2 = createWaves();
-        return Promise.all([promise1, promise2]);
+    if (isGameOver()) {
+        return;
+    }
+    let promise1 = createWaves();
+    await new Promise(r => setTimeout(r, 1000));
+    let promise2 = createWaves();
+    return Promise.all([promise1, promise2]);
 }
 
 
@@ -250,7 +249,7 @@ function getRandomInt(max) {
 
 
 async function createRandomWaves(howMany) {
-    for (let times = 1;times <= howMany; times++) {
+    for (let times = 1; times <= howMany; times++) {
         if (isGameOver()) {
             return;
         }
@@ -261,14 +260,14 @@ async function createRandomWaves(howMany) {
 }
 
 async function createAllWaves() {
-        if (isGameOver()) {
-            return;
-        }
-        await createWaves();
-        await createRandomWaves(10);
-        await createDoubleWaves();
-        createDoubleWaves();
-        await createRandomWaves(1000000);
+    if (isGameOver()) {
+        return;
+    }
+    await createWaves();
+    await createRandomWaves(10);
+    await createDoubleWaves();
+    createDoubleWaves();
+    await createRandomWaves(1000000);
 }
 
 async function setupGame() {
