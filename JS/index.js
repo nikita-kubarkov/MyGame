@@ -215,6 +215,9 @@ function isGameOver() {
 async function createWaves() {
     for (let i = 0; i < 10; i++) {
         for (let times = 0; times < 4; times++) {
+            if (isGameOver()) {
+                return;
+            }
             let enemy = addEnemy(times);
             moveEnemyDown(enemy);
             await new Promise(r => setTimeout(r, waves));
