@@ -16,6 +16,9 @@ let waves = 1000;
 let numberWaves = 0;
 let lastShotTime = 0;
 
+let runNum = 1;
+let enemyNum = 1;
+
 function suus() {
 
 }
@@ -28,7 +31,10 @@ async function newGame() {
         document.getElementById("startButton").style.visibility = "hidden";
         numberWaves = 0;
         waves = 1000;
-
+        enemyz = [];
+        enemyzCondition = new Map();
+        runNum++;
+        enemyNum = 1;
         await createAllWaves();
     }
 }
@@ -146,6 +152,8 @@ function moveShip() {
 async function moveEnemyDown(enemy) {
     let enemyTop = enemy.getBoundingClientRect().top;
     for (let times = 400; GAME_STATE === GAME_STATE_ACTIVE && times > 0; times = times - 1) {
+        if(isGameOver()) return;
+
         await new Promise(r => setTimeout(r, 20));
 
         enemyTop = enemyTop + 2;
@@ -160,10 +168,12 @@ async function moveEnemyDown(enemy) {
         if (enemyTop >= 680 && GAME_STATE === GAME_STATE_ACTIVE) {
             GAME_STATE = GAME_STATE_OVER;
             currentScore = 0;
-            // await endBoom.play();
+            enemyz = [];
+            enemyzCondition = new Map();
+            await endBoom.play();
             let boom = document.createElement("img");
             boom.src = "https://img.gazeta.ru/files3/716/15297716/RDS-6s_ognennoe_oblako-pic_32ratio_900x600-900x600-59269.jpg";
-            // document.getElementById("outside-spaceship").appendChild(boom);
+            document.getElementById("outside-spaceship").appendChild(boom);
             boom.style.width = 100 + "%";
             boom.style.height = 100 + "%";
             boom.style.zIndex = "10000";
@@ -176,6 +186,7 @@ async function moveEnemyDown(enemy) {
 
 function createEnemy(offset = 900) {
     let enemy = document.createElement("img");
+    enemy.id = `${runNum}_${enemyNum++}`;
     enemy.src = "images/enemy.png";
     enemy.classList.add("enemy");
     document.getElementById("outside-spaceship").appendChild(enemy);
@@ -185,12 +196,11 @@ function createEnemy(offset = 900) {
 }
 
 
-async function addEnemy(times) {
+function addEnemy(times) {
     let enemy = createEnemy(200 * times + 60);
     enemyz.push(enemy);
     enemyzCondition.set(enemy, ENEMY_ALIVE);
-    moveEnemyDown(enemy);
-    await new Promise(r => setTimeout(r, waves));
+    return enemy;
 }
 
 function isGameOver() {
@@ -200,16 +210,20 @@ function isGameOver() {
 async function createWaves() {
     for (let i = 0; GAME_STATE === GAME_STATE_ACTIVE && i < 10; i++) {
         for (let times = 0; GAME_STATE === GAME_STATE_ACTIVE && times < 4; times++) {
-            await addEnemy(times);
             if (isGameOver()) {
                 return;
             }
+            let enemy = addEnemy(times);
+            moveEnemyDown(enemy);
+            await new Promise(r => setTimeout(r, waves));
         }
         for (let timez = 3; GAME_STATE === GAME_STATE_ACTIVE && timez >= 0; timez--) {
-            await addEnemy(timez);
-            if (GAME_STATE === GAME_STATE_OVER) {
+            if (isGameOver()) {
                 return;
             }
+            let enemy = addEnemy(timez);
+            moveEnemyDown(enemy);
+            await new Promise(r => setTimeout(r, waves));
         }
     }
 }
@@ -234,10 +248,12 @@ function getRandomInt(max) {
 
 async function createRandomWaves(howMany) {
     for (let times = 1; GAME_STATE === GAME_STATE_ACTIVE && times <= howMany; times++) {
-        if (GAME_STATE === GAME_STATE_OVER) {
+        if (isGameOver()) {
             return;
         }
-        await addEnemy(getRandomInt(4));
+        let enemy = addEnemy(getRandomInt(4));
+        moveEnemyDown(enemy);
+        await new Promise(r => setTimeout(r, waves));
     }
 }
 
