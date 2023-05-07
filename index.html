@@ -3,18 +3,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title></title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="CSS/main.css">
     <script type="text/javascript" src="JS/index.js"></script>
 </head>
 <body onload="setupGame();">
+
 <div id="everething">
 
-    <button type="button" id="startButton" onclick="newGame()">reload</button>
-    <p id="score">score: </p>
-    <p id="maxscore">best: </p>
+    <button type="button" id="startButton" onclick="startNewGame()">reload</button>
+    <p id="score" onload="suus()">score: </p>
+    <p id="maxscore">best:</p>
     <div id="game">
 
 
