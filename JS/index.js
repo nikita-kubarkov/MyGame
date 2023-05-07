@@ -15,7 +15,6 @@ let coolDown = 1;
 let waves = 1000;
 let numberWaves = 0;
 let lastShotTime = 0;
-
 let runNum = 1;
 let enemyNum = 1;
 
@@ -25,7 +24,7 @@ function getBattlefield(){
     return  document.getElementById("outside-spaceship")
 }
 
-async function newGame() {
+async function startNewGame() {
     if (GAME_STATE === GAME_STATE_OVER) {
         document.getElementById("score").innerHTML = "score: " + currentScore;
         getBattlefield().innerHTML = "";
@@ -170,7 +169,7 @@ async function gameOver() {
 
 async function moveEnemyDown(enemy) {
     let enemyTop = enemy.getBoundingClientRect().top;
-    for (let times = 400; GAME_STATE === GAME_STATE_ACTIVE && times > 0; times = times - 1) {
+    for (let times = 400; times > 0; times = times - 1) {
         if(isGameOver()) return;
 
         await new Promise(r => setTimeout(r, 20));
@@ -184,7 +183,7 @@ async function moveEnemyDown(enemy) {
             break;
         }
 
-        if (enemyTop >= 680 && GAME_STATE === GAME_STATE_ACTIVE) {
+        if (enemyTop >= 680) {
             await gameOver();
         }
     }
@@ -214,16 +213,13 @@ function isGameOver() {
 }
 
 async function createWaves() {
-    for (let i = 0; GAME_STATE === GAME_STATE_ACTIVE && i < 10; i++) {
-        for (let times = 0; GAME_STATE === GAME_STATE_ACTIVE && times < 4; times++) {
-            if (isGameOver()) {
-                return;
-            }
+    for (let i = 0; i < 10; i++) {
+        for (let times = 0; times < 4; times++) {
             let enemy = addEnemy(times);
             moveEnemyDown(enemy);
             await new Promise(r => setTimeout(r, waves));
         }
-        for (let timez = 3; GAME_STATE === GAME_STATE_ACTIVE && timez >= 0; timez--) {
+        for (let timez = 3;timez >= 0; timez--) {
             if (isGameOver()) {
                 return;
             }
@@ -235,7 +231,6 @@ async function createWaves() {
 }
 
 async function createDoubleWaves() {
-    if (GAME_STATE === GAME_STATE_ACTIVE) {
         if (isGameOver()) {
             return;
         }
@@ -243,7 +238,6 @@ async function createDoubleWaves() {
         await new Promise(r => setTimeout(r, 1000));
         let promise2 = createWaves();
         return Promise.all([promise1, promise2]);
-    }
 }
 
 
@@ -253,7 +247,7 @@ function getRandomInt(max) {
 
 
 async function createRandomWaves(howMany) {
-    for (let times = 1; GAME_STATE === GAME_STATE_ACTIVE && times <= howMany; times++) {
+    for (let times = 1;times <= howMany; times++) {
         if (isGameOver()) {
             return;
         }
@@ -264,7 +258,6 @@ async function createRandomWaves(howMany) {
 }
 
 async function createAllWaves() {
-    if (GAME_STATE === GAME_STATE_ACTIVE) {
         if (isGameOver()) {
             return;
         }
@@ -273,8 +266,6 @@ async function createAllWaves() {
         await createDoubleWaves();
         createDoubleWaves();
         await createRandomWaves(1000000);
-
-    }
 }
 
 async function setupGame() {
