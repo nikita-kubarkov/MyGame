@@ -19,14 +19,16 @@ let lastShotTime = 0;
 let runNum = 1;
 let enemyNum = 1;
 
-function suus() {
 
+
+function getBattlefield(){
+    return document.getElementById("outside-spaceship")
 }
 
 async function newGame() {
     if (GAME_STATE === GAME_STATE_OVER) {
         document.getElementById("score").innerHTML = "score: " + currentScore;
-        document.getElementById("outside-spaceship").innerHTML = "";
+        getBattlefield().innerHTML = "";
         GAME_STATE = GAME_STATE_ACTIVE;
         document.getElementById("startButton").style.visibility = "hidden";
         numberWaves = 0;
@@ -52,7 +54,7 @@ async function shoot() {
     let bullet = document.createElement("img");
     bullet.src = "images/fireball.png";
     bullet.classList.add("bullet");
-    document.getElementById("outside-spaceship").appendChild(bullet);
+    getBattlefield().appendChild(bullet);
     let bulletLeft = document.getElementById('spaceship').getBoundingClientRect().left;
     bullet.style.left = bulletLeft + "px";
     let bulletTop = document.getElementById('spaceship').getBoundingClientRect().top;
@@ -82,7 +84,7 @@ async function shoot() {
                 }
                 let miniBoom = document.createElement("img");
                 miniBoom.src = "images/miniboom.png";
-                document.getElementById("outside-spaceship").appendChild(miniBoom);
+                getBattlefield().appendChild(miniBoom);
                 miniBoom.style.width = 100 + "px";
                 miniBoom.style.height = 100 + "px";
                 miniBoom.style.zIndex = "10000";
@@ -149,6 +151,23 @@ function moveShip() {
 }
 
 
+async function gameOver() {
+    GAME_STATE = GAME_STATE_OVER;
+    currentScore = 0;
+    enemyz = [];
+    enemyzCondition = new Map();
+    await endBoom.play();
+    let boom = document.createElement("img");
+    boom.src = "https://img.gazeta.ru/files3/716/15297716/RDS-6s_ognennoe_oblako-pic_32ratio_900x600-900x600-59269.jpg";
+    getBattlefield().appendChild(boom);
+    boom.style.width = 100 + "%";
+    boom.style.height = 100 + "%";
+    boom.style.zIndex = "10000";
+    boom.style.position = "relative";
+    boom.style.left = "0";
+    document.getElementById("startButton").style.visibility = "visible";
+}
+
 async function moveEnemyDown(enemy) {
     let enemyTop = enemy.getBoundingClientRect().top;
     for (let times = 400; GAME_STATE === GAME_STATE_ACTIVE && times > 0; times = times - 1) {
@@ -166,20 +185,7 @@ async function moveEnemyDown(enemy) {
         }
 
         if (enemyTop >= 680 && GAME_STATE === GAME_STATE_ACTIVE) {
-            GAME_STATE = GAME_STATE_OVER;
-            currentScore = 0;
-            enemyz = [];
-            enemyzCondition = new Map();
-            await endBoom.play();
-            let boom = document.createElement("img");
-            boom.src = "https://img.gazeta.ru/files3/716/15297716/RDS-6s_ognennoe_oblako-pic_32ratio_900x600-900x600-59269.jpg";
-            document.getElementById("outside-spaceship").appendChild(boom);
-            boom.style.width = 100 + "%";
-            boom.style.height = 100 + "%";
-            boom.style.zIndex = "10000";
-            boom.style.position = "relative";
-            boom.style.left = "0";
-            document.getElementById("startButton").style.visibility = "visible";
+            await gameOver();
         }
     }
 }
@@ -189,7 +195,7 @@ function createEnemy(offset = 900) {
     enemy.id = `${runNum}_${enemyNum++}`;
     enemy.src = "images/enemy.png";
     enemy.classList.add("enemy");
-    document.getElementById("outside-spaceship").appendChild(enemy);
+    getBattlefield().appendChild(enemy);
     let enemyLeft = enemy.getBoundingClientRect().left + offset;
     enemy.style.left = enemyLeft + "px";
     return enemy;
@@ -230,7 +236,7 @@ async function createWaves() {
 
 async function createDoubleWaves() {
     if (GAME_STATE === GAME_STATE_ACTIVE) {
-        if (GAME_STATE === GAME_STATE_OVER) {
+        if (isGameOver()) {
             return;
         }
         let promise1 = createWaves();
@@ -259,7 +265,7 @@ async function createRandomWaves(howMany) {
 
 async function createAllWaves() {
     if (GAME_STATE === GAME_STATE_ACTIVE) {
-        if (GAME_STATE === GAME_STATE_OVER) {
+        if (isGameOver()) {
             return;
         }
         await createWaves();
